@@ -2,10 +2,9 @@
 /**
  * Tela Home
  *
- * Objetivo: Mostrar informações de Cadastro
- *           Mostrar os Produtos da Empresa
- * 
+ * Objetivo: Mostrar informações de Cadastro da Empresa e da Cidade Selecionada
  */
+
 session_start();
 
 include("../classes/db.php");
@@ -13,8 +12,8 @@ $db = new db();
 $db->conectar();
 $conn = $db->conexao();
 
-// Sessions
-if (!isset($_SESSION['empresa_id'])) {
+// Sessões
+if (!isset($_SESSION['empresa_id']) || !isset($_SESSION['cidade_id'])) {
     header("Location: ../index.php");
     exit;
 }
@@ -22,35 +21,38 @@ if (!isset($_SESSION['empresa_id'])) {
 $empresaId = $_SESSION['empresa_id'];
 $cidadeId = $_SESSION['cidade_id'];
 
-// Consulta Cidade 
+// Consulta Cidade
 $queryCidade = $conn->prepare("
     SELECT 
-        cid.DESCRICAO_CIDADE AS NOME_CIDADE
+        cid.DESCRICAO_CIDADE AS NOME_CIDADE,
+        cid.UF AS ESTADO,
+        cid.PAIS AS PAIS,
+        cid.CEP_BASICO AS CEP_CIDADE,
+        cid.DDD AS DDD
     FROM 
         CIDADE cid
-    INNER JOIN 
-        EMPRESA emp ON emp.EMPRESA = cid.EMPRESA
     WHERE 
-        cid.CIDADE = :cidadeId AND emp.EMPRESA = :empresaId
+        cid.CIDADE = :cidadeId AND cid.EMPRESA = :empresaId
 ");
 $queryCidade->bindParam(':cidadeId', $cidadeId, PDO::PARAM_INT);
 $queryCidade->bindParam(':empresaId', $empresaId, PDO::PARAM_INT);
 $queryCidade->execute();
 $dadosCidade = $queryCidade->fetch(PDO::FETCH_ASSOC);
 
-// Caso for vazio então mostra uma mensagem
+// Dados cidade
 $cidade = $dadosCidade['NOME_CIDADE'] ?? 'Informação indisponível';
+$estado = $dadosCidade['ESTADO'] ?? 'Informação indisponível';
+$pais = $dadosCidade['PAIS'] ?? 'Informação indisponível';
+$cepCidade = $dadosCidade['CEP_CIDADE'] ?? 'Informação indisponível';
+$dddCidade = $dadosCidade['DDD'] ?? 'Informação indisponível';
 
-// Consulta Informações
+// Consulta empresa
 $queryEmp = $conn->prepare("
     SELECT 
         NOME_FANTASIA,
         RAZAO_SOCIAL,
         ENDERECO,
         BAIRRO,
-        CEP,
-        TELEFONE,
-        FAX,
         CNPJ,
         IE
     FROM 
@@ -62,15 +64,18 @@ $queryEmp->bindParam(':empresaId', $empresaId, PDO::PARAM_INT);
 $queryEmp->execute();
 $dadosEmp = $queryEmp->fetch(PDO::FETCH_ASSOC);
 
+// Dados Empresa
 $nomeFantasia = $dadosEmp['NOME_FANTASIA'] ?? 'Informação indisponível';
 $razaoSocial = $dadosEmp['RAZAO_SOCIAL'] ?? 'Informação indisponível';
 $endereco = $dadosEmp['ENDERECO'] ?? 'Informação indisponível';
 $bairro = $dadosEmp['BAIRRO'] ?? 'Informação indisponível';
-$cep = $dadosEmp['CEP'] ?? 'Informação indisponível';
-$telefone = $dadosEmp['TELEFONE'] ?? 'Informação indisponível';
 $fax = $dadosEmp['FAX'] ?? 'Informação indisponível';
 $cnpj = $dadosEmp['CNPJ'] ?? 'Informação indisponível';
 $ie = $dadosEmp['IE'] ?? 'Informação indisponível';
+
+$telefoneCompleto = $dddCidade !== 'Informação indisponível' ? "($dddCidade) {$telefone}" : 'Informação indisponível';
+$cepCompleto = $cepCidade !== 'Informação indisponível' ? $cepCidade : 'Informação indisponível';
+
 ?>
 
 
@@ -103,27 +108,29 @@ $ie = $dadosEmp['IE'] ?? 'Informação indisponível';
          <!-- Todas as informações cadastro-->
          <h2 id="razaoSocial"><?php echo $razaoSocial; ?></h2>
          <div id="info" class="info">
-                <p><strong>Nome Fantasia:</strong> <span><?php echo $nomeFantasia; ?></span></p>
-                <p><strong>Endereço:</strong> <span><?php echo $endereco; ?></span></p>
-                <p><strong>Bairro:</strong> <span><?php echo $bairro; ?></span></p>
-                <p><strong>CEP:</strong> <span><?php echo $cep; ?></span></p>
-                <p><strong>Cidade:</strong> <span><?php echo $cidade; ?></span></p>
-                <p><strong>Telefone:</strong> <span><?php echo $telefone; ?></span></p>
-                <p><strong>Fax:</strong> <span><?php echo $fax; ?></span></p>
-                <p><strong>CNPJ:</strong> <span><?php echo $cnpj; ?></span></p>
-                <p><strong>Inscrição Estadual:</strong> <span><?php echo $ie; ?></span></p>
-          </div>
+            <p><strong>Nome Fantasia:</strong> <span><?php echo $nomeFantasia; ?></span></p>
+            <p><strong>Endereço:</strong> <span><?php echo $endereco; ?></span></p>
+            <p><strong>Bairro:</strong> <span><?php echo $bairro; ?></span></p>
+            <p><strong>CEP:</strong> <span><?php echo $cepCompleto; ?></span></p>
+            <p><strong>Cidade:</strong> <span><?php echo $cidade; ?></span></p>
+            <p><strong>Telefone:</strong> <span><?php echo $telefoneCompleto; ?></span></p>
+            <p><strong>Fax:</strong> <span><?php echo $fax; ?></span></p>
+            <p><strong>CNPJ:</strong> <span><?php echo $cnpj; ?></span></p>
+            <p><strong>Inscrição Estadual:</strong> <span><?php echo $ie; ?></span></p>
+</div>
 
             <!-- Botão sair -->
-            <button class="sair-btn">
-                Sair
-                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-arrow-right logout-icon" viewBox="0 0 16 16">
-                    <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
-                    <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
-                </svg>
-            </button>
-        </div>
-
+            <form method="POST" action="logout.php" style="display: inline;">
+                <button type="submit" class="sair-btn">
+                     Sair
+                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="currentColor" class="bi bi-box-arrow-right logout-icon" viewBox="0 0 16 16">
+                      <path fill-rule="evenodd" d="M10 12.5a.5.5 0 0 1-.5.5h-8a.5.5 0 0 1-.5-.5v-9a.5.5 0 0 1 .5-.5h8a.5.5 0 0 1 .5.5v2a.5.5 0 0 0 1 0v-2A1.5 1.5 0 0 0 9.5 2h-8A1.5 1.5 0 0 0 0 3.5v9A1.5 1.5 0 0 0 1.5 14h8a1.5 1.5 0 0 0 1.5-1.5v-2a.5.5 0 0 0-1 0z"/>
+                      <path fill-rule="evenodd" d="M15.854 8.354a.5.5 0 0 0 0-.708l-3-3a.5.5 0 0 0-.708.708L14.293 7.5H5.5a.5.5 0 0 0 0 1h8.793l-2.147 2.146a.5.5 0 0 0 .708.708z"/>
+                     </svg>
+                 </button>
+            </form>
+            </div>
+        
         <!-- Produtos -->
         <div class="produto-container">
             <div class="produto-icon">
@@ -152,5 +159,6 @@ $ie = $dadosEmp['IE'] ?? 'Informação indisponível';
             </div>
         </div>
     </div>
+
 </body>
 </html>
