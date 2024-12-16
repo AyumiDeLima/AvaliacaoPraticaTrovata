@@ -1,0 +1,142 @@
+* {
+    margin: 0;
+    border: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: "Poppins", sans-serif;
+}
+
+body {
+    background-image: url(https://assets.topworksheets.com/dbfb44af-3094-411e-982d-1e082981dcd6/image/a556d66c-89b8-4cdb-9eb0-b293b3dd8f55.jpeg);
+    background-color: #dbedd0;
+    background-repeat: no-repeat;
+    background-size: 650px;
+    background-position: center;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+
+nav {
+    background-color: #177009;
+    padding: 10px 20px;
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+
+nav .welcome-text {
+    color: #fff;
+    font-size: 1.5rem;
+}
+
+
+main.container {
+    background: white;
+    width: 90%;
+    max-width: 500px;
+    padding: 20px;
+    box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.2);
+    border-radius: 8px;
+    text-align: center;
+}
+
+
+main.container .top-icon {
+    color: #177009;
+    margin-bottom: 10px;
+}
+
+
+h1, h2 {
+    color: #005c0f;
+    margin-bottom: 15px;
+}
+
+h1 {
+    font-size: 1.5rem;
+}
+
+h2 {
+    font-size: 1.2rem;
+}
+
+
+form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+
+form select {
+    font-size: 16px;
+    padding: 10px;
+    border: 2px solid #005c0f;
+    border-radius: 4px;
+    outline: none;
+    width: 100%;
+    transition: border-color 0.2s;
+}
+
+
+form input[type="submit"] {
+    margin-top: 1rem;
+    padding: 0.8rem;
+    background: #0fd963;
+    cursor: pointer;
+    color: white;
+    font-weight: 500;
+    border-radius: 8px;
+    border: none;
+    transition: all 0.3s ease;
+}
+
+form input[type="submit"]:hover {
+    background: #177009;
+}
+
+
+a {
+    font-size: 14px;
+    text-align: center;
+    color: #177009;
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+
+@media (max-width: 768px) {
+    main.container {
+        width: 90%;
+    }
+
+    h1 {
+        font-size: 1.4rem;
+    }
+
+    form input[type="submit"] {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    main.container {
+        padding: 15px;
+    }
+
+    h1 {
+        font-size: 1.2rem;
+    }
+
+    form input[type="submit"] {
+        font-size: 14px;
+    }
+}
