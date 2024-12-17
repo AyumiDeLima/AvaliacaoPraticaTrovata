@@ -1,6 +1,5 @@
 <?php
 /**
- * Tela Home
  *
  * Objetivo: Arquivo que processa o logout dessa conta / Destroi e Finaliza o Session 
  *           Volta para o começo
